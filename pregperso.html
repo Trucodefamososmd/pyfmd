@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Conductores</title>
+    <style>
+        body {
+            background: linear-gradient(to right, silver, pink);
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px white;
+        }
+        .question {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .options button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 12px;
+            background: white;
+            color: black;
+            border: none;
+            cursor: pointer;
+            border-radius: 15px;
+            box-shadow: 0px 0px 8px white;
+            transition: 0.3s;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .options button:hover {
+            background: pink;
+            transform: scale(1.05);
+        }
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0px 0px 15px white;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .retry {
+            background: pink;
+            color: white;
+        }
+        .retry:hover {
+            background: white;
+            color: black;
+        }
+        .fixed-bottom {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, pink, silver);
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0px 0px 20px white;
+            transition: 0.3s;
+            border: none;
+        }
+        .fixed-bottom:hover {
+            background: white;
+            color: black;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trivia Conductores</h1>
+    <div class="container">
+        <p class="question" id="question"></p>
+        <div class="options" id="options"></div>
+        <p class="result" id="result"></p>
+        <div class="buttons">
+            <button id="retry" class="retry hidden" onclick="reiniciarJuego()">Volver a jugar</button>
+        </div>
+    </div>
+    <button class="fixed-bottom" onclick="location.href='index.html'">Volver al inicio</button>
+
+    <script>
+        const preguntas = [
+            { pregunta: "¿Dónde nació Juli Castro?", opciones: ["Buenos Aires", "Córdoba", "Rosario"], correcta: "Buenos Aires" },
+            { pregunta: "¿En qué año nació Fede Popgold?", opciones: ["1990", "1985", "1992"], correcta: "1992" },
+            { pregunta: "¿De que signo es Cami Mayan?", opciones: ["Virgo", "Aries", "Leo"], correcta: "Aries" },
+            { pregunta: "¿Cuantos hijso tiene Anita Esposito?", opciones: ["1", "2", "0"], correcta: "1" },
+            { pregunta: "¿Lucas Spadafora es conocido por?", opciones: ["El cantando", "YouTube", "Stravaganza"], correcta: "YouTube" },
+            { pregunta: "¿Juli Castro ha trabajado en televisión?", opciones: ["Sí", "No", "Solo en radio"], correcta: "Sí" },
+            { pregunta: "¿Como arranco a estar en Luzu Fede Popgold?", opciones: ["Columnista de NDN", "Conduciendo PYF", "Conduciendo MDM"], correcta: "Columnista de NDN" },
+            { pregunta: "¿En que rubro se destaca Cami Mayan?", opciones: ["Modelo", "Bailarina", "Actriz"], correcta: "Modelo" },
+            { pregunta: "¿En que otro stream trabaja Anita Esposito?", opciones: ["Vorterix", "Olga", "Telefe"], correcta: "Telefe" },
+            { pregunta: "¿Lucas Spadafora participó en algún reality?", opciones: ["Sí", "No", "Solo entrevistas"], correcta: "Sí" },
+            { pregunta: "¿Juli Castro es cantante de una banda musical?", opciones: ["Sí", "No", "Solo como solista"], correcta: "No" },
+            { pregunta: "¿En que programa de tv va a participar Fede Popgold?", opciones: ["Yanina Latorre", "LAM", "Gran Hermano"], correcta: "Yanina Latorre" },
+            { pregunta: "¿Cami Mayan ha trabajado como influencer?", opciones: ["Sí", "No", "Solo modelaje"], correcta: "Sí" },
+            { pregunta: "¿Como es el segundo nombre de Anita Esposito?", opciones: ["No tiene", "Valeria", "Laura"], correcta: "Laura" },
+            { pregunta: "¿De que se vistió Lucas Spadafora en el videoclip de Lali?", opciones: ["Mirtha Legrand", "Monja", "Rockstar"], correcta: "Monja" }
+        ];
+        
+        let indice = 0;
+        let correctas = 0;
+        
+        function mostrarPregunta() {
+            if (indice < preguntas.length) {
+                document.getElementById("question").innerText = preguntas[indice].pregunta;
+                document.getElementById("options").innerHTML = preguntas[indice].opciones.map(opcion => 
+                    `<button onclick="verificar('${opcion}')">${opcion}</button>`
+                ).join("");
+            } else {
+                document.getElementById("question").innerText = "Trivia finalizada. Respuestas correctas: " + correctas + "/15";
+                document.getElementById("options").innerHTML = '';
+                document.getElementById("retry").classList.remove("hidden");
+            }
+        }
+        
+        function verificar(respuesta) {
+            if (respuesta === preguntas[indice].correcta) correctas++;
+            indice++;
+            mostrarPregunta();
+        }
+        
+        function reiniciarJuego() {
+            indice = 0;
+            correctas = 0;
+            document.getElementById("retry").classList.add("hidden");
+            mostrarPregunta();
+        }
+        
+        mostrarPregunta();
+    </script>
+</body>
+</html>
