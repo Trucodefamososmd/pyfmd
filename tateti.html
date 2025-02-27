@@ -108,7 +108,7 @@
         <p id="resultado"></p>
         <button class="reset-button" onclick="reiniciarJuego()">Volver a jugar</button>
     </div>
-    <button class="fixed-bottom" style="top: 20px; right: 20px; bottom: auto; left: auto;" onclick="location.href='index.html'">Volver al inicio</button>
+    <button class="fixed-bottom" onclick="location.href='index.html'">Volver al inicio</button>
 
 <script>
     let turno, jugador1, jugador2;
@@ -164,8 +164,7 @@
                 celdas[a].dataset.jugador === celdas[b].dataset.jugador &&
                 celdas[a].dataset.jugador === celdas[c].dataset.jugador
             ) {
-                document.getElementById("resultado").innerHTML = `<span style="color: yellow; text-shadow: 0px 0px 10px yellow, 0px 0px 20px gold; font-size: 36px; font-weight: bold;">¡${celdas[a].dataset.jugador} gana!</span>`;  
-
+                document.getElementById("resultado").innerHTML = `<span style="color: yellow; text-shadow: 0px 0px 10px yellow, 0px 0px 20px gold; font-size: 36px; font-weight: bold;">¡${celdas[a].dataset.jugador} gana!</span>`;
                 deshabilitarCeldas();
                 return;
             }
