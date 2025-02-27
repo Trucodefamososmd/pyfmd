@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anagrama - Patria y Familia</title>
+    <style>
+        body {
+            background: linear-gradient(to right, silver, pink);
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px white;
+        }
+        .word {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .button:hover {
+            opacity: 0.8;
+        }
+        input {
+            font-size: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            text-align: center;
+        }
+        #siguiente {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Anagrama - Patria y Familia</h1>
+    <div class="container">
+        <p id="palabra" class="word"></p>
+        <input type="text" id="respuesta" placeholder="Escribe la palabra correcta">
+        <button class="button" onclick="verificarRespuesta()">Verificar</button>
+        <p id="resultado"></p>
+        <button class="button" id="siguiente" onclick="nuevaPalabra()">Siguiente</button>
+        <button class="button" onclick="location.href='index.html'">Volver al inicio</button>
+    </div>
+    
+    <script>
+        const palabras = [
+            "patria y familia", "dios del coito", "fuera", "fede popgold", "lucas spadafora", 
+            "camila mayan", "anita esposito", "juli castro", "Patriotas"
+        ];
+        let palabraActual = "";
+
+        function nuevaPalabra() {
+            palabraActual = palabras[Math.floor(Math.random() * palabras.length)];
+            let desordenada = palabraActual.split('').sort(() => Math.random() - 0.5).join('');
+            document.getElementById("palabra").textContent = desordenada;
+            document.getElementById("respuesta").value = "";
+            document.getElementById("resultado").textContent = "";
+            document.getElementById("siguiente").style.display = "none";
+        }
+
+        function verificarRespuesta() {
+            let respuestaUsuario = document.getElementById("respuesta").value.toLowerCase().trim();
+            if (respuestaUsuario === palabraActual.toLowerCase()) {
+                document.getElementById("resultado").textContent = "¡Correcto!";
+                document.getElementById("siguiente").style.display = "inline-block";
+            } else {
+                document.getElementById("resultado").textContent = "Intenta de nuevo.";
+            }
+        }
+
+        nuevaPalabra();
+    </script>
+</body>
+</html>

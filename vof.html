@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verdadero o Falso - Patria y Familia</title>
+    <style>
+        body {
+            background: linear-gradient(to right, silver, pink);
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px white;
+        }
+        .button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .button.true {
+            background: green;
+            color: white;
+        }
+        .button.false {
+            background: red;
+            color: white;
+        }
+        .button:hover {
+            opacity: 0.8;
+        }
+        .fixed-side {
+            position: fixed;
+            top: 50px;
+            left: 20px;
+            background: linear-gradient(to right, pink, silver);
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0px 0px 20px white;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .fixed-side:hover {
+            background: white;
+            color: black;
+        }
+        .bold-text {
+            font-weight: bold;
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button class="fixed-side" onclick="location.href='index.html'">Volver al inicio</button>
+    <h1>Verdadero o Falso - Patria y Familia</h1>
+    <div class="container">
+        <p id="pregunta"></p>
+        <button class="button true" id="verdadero" onclick="responder(true)">Verdadero</button>
+        <button class="button false" id="falso" onclick="responder(false)">Falso</button>
+        <p id="resultado"></p>
+        <button class="button" id="reiniciar" onclick="iniciarJuego()" style="display:none;">Volver a jugar</button>
+    </div>
+    
+    <script>
+        const preguntas = [
+        { texto: "<span class='bold-text'>Lucas le hizo una entrevista a Emilia</span>", respuesta: false },
+        { texto: "<span class='bold-text'>Hicieron un especial por el 25 de mayo</span>", respuesta: false },
+        { texto: "<span class='bold-text'>En PYF le festejaron los 15 a Martin Cirio</span>", respuesta: true },
+        { texto: "<span class='bold-text'>A Cami le robaron unos anteojos de marca</span>", respuesta: true },
+
+        { texto: "<span class='bold-text'>Anita y Domi ganaron los PYF games</span>", respuesta: true },
+        { texto: "<span class='bold-text'>Ana Chiara tuvo una caida epica</span>", respuesta: true },
+        { texto: "<span class='bold-text'>Maria Becerra fue al primer programa de PYF</span>", respuesta: false },
+        { texto: "<span class='bold-text'>Conny es la productora ejecutiva de PYF</span>", respuesta: false },
+
+        { texto: "<span class='bold-text'>Hubo una transmición especial desde el cabildo</span>", respuesta: true },
+        { texto: "<span class='bold-text'>Fede Popgold se disfrazo de Superman</span>", respuesta: true },
+        { texto: "<span class='bold-text'>Lucas protagonizo el tiny desk de trueno</span>", respuesta: false },
+        { texto: "<span class='bold-text'>Ricardo Montaner fue uno de los primeros invitados de PYF</span>", respuesta: false },
+        
+        { texto: "<span class='bold-text'>El programa cuenta con una sección dedicada a la cocina en vivo</span>", respuesta: false },
+        { texto: "<span class='bold-text'>Patria y Familia gano el Martin Fierro de oro como mejor programa de streaming</span>", respuesta: false },
+        { texto: "<span class='bold-text'>Fede conduce una seccion que se llama 'vivir siendo'</span>", respuesta: true },
+        { texto: "<span class='bold-text'>El ultimo programa del 2024 lo hicieron desde la terraza de Luzu</span>", respuesta: true },
+
+        { texto: "<span class='bold-text'>En PYF hicieron un especial drag</span>", respuesta: true },
+        { texto: "<span class='bold-text'>En PYF le hicieron el velorio a NDN</span>", respuesta: true },
+        { texto: "<span class='bold-text'>Cuando se cayo Ana Chiara estaban todos vestidos de gatos</span>", respuesta: true },
+            { texto: "<span class='bold-text'>En PYF hicieron un baile de floricienta</span>", respuesta: true }
+        ];
+        
+        let preguntasRestantes = [];
+        let puntaje = 0;
+
+        function iniciarJuego() {
+            preguntasRestantes = [...preguntas].sort(() => Math.random() - 0.5);
+            puntaje = 0;
+            document.getElementById("verdadero").style.display = "inline-block";
+            document.getElementById("falso").style.display = "inline-block";
+            document.getElementById("reiniciar").style.display = "none";
+            document.getElementById("resultado").innerText = "";
+            siguientePregunta();
+        }
+
+        function siguientePregunta() {
+            if (preguntasRestantes.length === 0) {
+                document.getElementById("pregunta").innerText = `Juego terminado. Respuestas correctas: ${puntaje}/${preguntas.length}`;
+                document.getElementById("verdadero").style.display = "none";
+                document.getElementById("falso").style.display = "none";
+                document.getElementById("reiniciar").style.display = "inline-block";
+                return;
+            }
+            let preguntaActual = preguntasRestantes.pop();
+            document.getElementById("pregunta").innerHTML = preguntaActual.texto;
+            document.getElementById("pregunta").setAttribute("data-respuesta", preguntaActual.respuesta);
+        }
+
+        function responder(respuestaUsuario) {
+            let respuestaCorrecta = document.getElementById("pregunta").getAttribute("data-respuesta") === "true";
+            if (respuestaUsuario === respuestaCorrecta) {
+                puntaje++;
+            }
+            siguientePregunta();
+        }
+
+        iniciarJuego();
+    </script>
+</body>
+</html>

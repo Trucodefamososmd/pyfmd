@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orden Cronológico</title>
+    <style>
+        body {
+            background: linear-gradient(to right, silver, pink);
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px white;
+        }
+        h1 {
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+        }
+        .consigna {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .image-container img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: grab;
+            transition: transform 0.3s;
+        }
+        .image-container img:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+        .button {
+            margin: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .button:hover {
+            opacity: 0.8;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* Estilos para la ventana modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding-top: 60px;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Orden Cronológico</h1>
+    <div class="container">
+        <p class="consigna">Arrastra las imágenes y ordénalas en el orden cronológico correcto según lo que pasó en el programa (al tocar la imagen se agranda).</p>
+        
+        <div class="image-container" id="imageContainer">
+            <img src="fotos/comienzo.jpg" alt="comienzo" class="draggable" data-order="1">
+            <img src="fotos/brillos.jpg" alt="brillos" class="draggable" data-order="2">
+            <img src="fotos/drag.jpg" alt="drag" class="draggable" data-order="3">
+            <img src="fotos/upd.jpg" alt="upd" class="draggable" data-order="4">
+            <img src="fotos/patria.jpg" alt="patria" class="draggable" data-order="5">
+            <img src="fotos/org.jpg" alt="org" class="draggable" data-order="6">
+            <img src="fotos/100.jpg" alt="100" class="draggable" data-order="7">
+            <img src="fotos/juegos.jpg" alt="juegos" class="draggable" data-order="8">
+            <img src="fotos/facha.jpg" alt="facha" class="draggable" data-order="9">
+            <img src="fotos/navidad.jpg" alt="navidad" class="draggable" data-order="10">
+            <img src="fotos/ino.jpg" alt="ino" class="draggable" data-order="11">
+            <img src="fotos/pina.jpg" alt="pina" class="draggable" data-order="12">
+            <img src="fotos/nico.png" alt="nico" class="draggable" data-order="13">
+        </div>
+
+        <button class="button" onclick="location.href='index.html'">Volver al inicio</button>
+        <button class="button" onclick="checkOrder()">Comprobar Orden</button>
+
+        <p id="result" class="hidden"></p>
+        <button class="button hidden" id="correctAnswers" onclick="showCorrectAnswers()">Ver Respuestas Correctas</button>
+    </div>
+
+    <!-- Modal para mostrar la imagen grande -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+
+    <script>
+        const container = document.getElementById("imageContainer");
+        const result = document.getElementById("result");
+        const correctAnswersButton = document.getElementById("correctAnswers");
+        const modal = document.getElementById("myModal");
+        const modalImg = document.getElementById("img01");
+
+        let draggedItem = null;
+
+        document.querySelectorAll(".draggable").forEach(item => {
+            item.addEventListener("dragstart", function () {
+                draggedItem = this;
+                setTimeout(() => this.style.display = "none", 0);
+            });
+
+            item.addEventListener("dragend", function () {
+                setTimeout(() => {
+                    draggedItem.style.display = "block";
+                    draggedItem = null;
+                }, 0);
+            });
+
+            // Mostrar imagen grande al hacer clic
+            item.addEventListener("click", function () {
+                modal.style.display = "block";
+                modalImg.src = this.src;
+            });
+        });
+
+        container.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(container, e.clientY);
+            if (afterElement == null) {
+                container.appendChild(draggedItem);
+            } else {
+                container.insertBefore(draggedItem, afterElement);
+            }
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll(".draggable:not([style*='display: none'])")];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                return offset < 0 && offset > closest.offset ? { offset, element: child } : closest;
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Función para comprobar si el orden es correcto
+        function checkOrder() {
+            let correct = 0;
+            let incorrect = 0;
+
+            const images = document.querySelectorAll(".draggable");
+            images.forEach((image, index) => {
+                if (parseInt(image.dataset.order) === index + 1) {
+                    correct++;
+                } else {
+                    incorrect++;
+                }
+            });
+
+            result.innerHTML = `<span style="font-size: 1.8rem; font-weight: bold; color: #FF9800; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);">Has acertado ${correct} imagenes.</span><br><span style="font-size: 1.8rem; font-weight: bold; color: #F44336; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);">Has fallado ${incorrect} imagenes.</span>`;
+
+            result.classList.remove("hidden");
+            correctAnswersButton.classList.remove("hidden");
+        }
+
+        // Función para mostrar las respuestas correctas
+        function showCorrectAnswers() {
+            const images = document.querySelectorAll(".draggable");
+            images.forEach((image, index) => {
+                image.style.border = (parseInt(image.dataset.order) === index + 1) ? "5px solid green" : "5px solid red";
+            });
+        }
+
+        // Desordenamos las imágenes al cargar la página
+        window.onload = () => {
+            let imagesArray = [...document.querySelectorAll(".draggable")];
+            imagesArray.sort(() => Math.random() - 0.5);  // Desordenar las imágenes
+
+            imagesArray.forEach(image => container.appendChild(image));  // Volver a agregar las imágenes desordenadas
+        };
+
+        // Función para cerrar la ventana modal
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Cerrar modal al hacer clic fuera de la imagen
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
+</body>
+</html>

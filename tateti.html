@@ -108,71 +108,79 @@
         <p id="resultado"></p>
         <button class="reset-button" onclick="reiniciarJuego()">Volver a jugar</button>
     </div>
-    <button class="fixed-bottom" onclick="location.href='index.html'">Volver al inicio</button>
-    
-    <script>
-        let turno, jugador1, jugador2;
-        const imagenes = {
-            'juli': 'juli.jpg',
-            'cami': 'cami.jpg',
-            'fede': 'fede.jpg',
-            'anita': 'anita.jpg',
-            'lucas': 'lucas.jpg'
-        };
-        
-        function iniciarJuego(j1, j2) {
-            jugador1 = j1;
-            jugador2 = j2;
-            turno = jugador1;
-            document.getElementById("resultado").innerText = "";
-            document.getElementById("turno").innerText = `Turno de: ${turno}`;
-            crearTablero();
+    <button class="fixed-bottom" style="top: 20px; right: 20px; bottom: auto; left: auto;" onclick="location.href='index.html'">Volver al inicio</button>
+
+<script>
+    let turno, jugador1, jugador2;
+    const imagenes = {
+        'juli': 'juli.jpg',
+        'cami': 'cami.jpg',
+        'fede': 'fede.jpg',
+        'anita': 'anita.jpg',
+        'lucas': 'lucas.jpg'
+    };
+
+    function iniciarJuego(j1, j2) {
+        jugador1 = j1;
+        jugador2 = j2;
+        turno = jugador1;
+        document.getElementById("resultado").innerText = "";
+        document.getElementById("turno").innerText = `Turno de: ${turno}`;
+        crearTablero();
+    }
+
+    function crearTablero() {
+        let grid = document.getElementById("grid");
+        grid.innerHTML = "";
+        for (let i = 0; i < 9; i++) {
+            let cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.dataset.index = i;
+            cell.onclick = jugar;
+            grid.appendChild(cell);
         }
-        
-        function crearTablero() {
-            let grid = document.getElementById("grid");
-            grid.innerHTML = "";
-            for (let i = 0; i < 9; i++) {
-                let cell = document.createElement("div");
-                cell.classList.add("cell");
-                cell.dataset.index = i;
-                cell.onclick = jugar;
-                grid.appendChild(cell);
+    }
+
+    function jugar() {
+        if (this.innerHTML !== "") return;
+        this.innerHTML = `<img src="${imagenes[turno]}" alt="${turno}">`;
+        this.dataset.jugador = turno;
+        verificarGanador();
+        turno = turno === jugador1 ? jugador2 : jugador1;
+        document.getElementById("turno").innerText = `Turno de: ${turno}`;
+    }
+
+    function verificarGanador() {
+        const celdas = document.querySelectorAll(".cell");
+        const combinaciones = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+        for (let comb of combinaciones) {
+            const [a, b, c] = comb;
+            if (
+                celdas[a].dataset.jugador &&
+                celdas[a].dataset.jugador === celdas[b].dataset.jugador &&
+                celdas[a].dataset.jugador === celdas[c].dataset.jugador
+            ) {
+                document.getElementById("resultado").innerHTML = `<span style="color: yellow; text-shadow: 0px 0px 10px yellow, 0px 0px 20px gold; font-size: 36px; font-weight: bold;">¡${celdas[a].dataset.jugador} gana!</span>`;  
+
+                deshabilitarCeldas();
+                return;
             }
         }
-        
-        function jugar() {
-            if (this.innerHTML !== "") return;
-            this.innerHTML = `<img src="${imagenes[turno]}" alt="${turno}">`;
-            this.dataset.jugador = turno;
-            turno = turno === jugador1 ? jugador2 : jugador1;
-            document.getElementById("turno").innerText = `Turno de: ${turno}`;
-            verificarGanador();
-        }
-        
-        function verificarGanador() {
-            const celdas = document.querySelectorAll(".cell");
-            const combinaciones = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8],
-                [0, 3, 6], [1, 4, 7], [2, 5, 8],
-                [0, 4, 8], [2, 4, 6]
-            ];
-            for (let comb of combinaciones) {
-                const [a, b, c] = comb;
-                if (
-                    celdas[a].dataset.jugador &&
-                    celdas[a].dataset.jugador === celdas[b].dataset.jugador &&
-                    celdas[a].dataset.jugador === celdas[c].dataset.jugador
-                ) {
-                    document.getElementById("resultado").innerText = `¡${celdas[a].dataset.jugador} gana!`;
-                    return;
-                }
-            }
-        }
-        
-        function reiniciarJuego() {
-            iniciarJuego(jugador1, jugador2);
-        }
-    </script>
-</body>
+    }
+
+    function deshabilitarCeldas() {
+        const celdas = document.querySelectorAll(".cell");
+        celdas.forEach(cell => cell.onclick = null);
+    }
+
+    function reiniciarJuego() {
+        iniciarJuego(jugador1, jugador2);
+    }
+</script>
+
+</body> 
 </html>

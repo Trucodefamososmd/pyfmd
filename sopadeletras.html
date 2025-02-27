@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sopa de Letras</title>
+    <style>
+        body {
+            background: linear-gradient(to right, silver, pink);
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px white;
+        }
+        .word-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .word-list span {
+            margin: 0 10px;
+        }
+        .word-list .found {
+            text-decoration: line-through;
+            color: lightgray;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 30px);
+            gap: 5px;
+            justify-content: center;
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            background: white;
+            color: black;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cell.selected {
+            background: pink;
+            color: white;
+        }
+        .cell.found {
+            background: green;
+            color: white;
+        }
+        .fixed-side {
+            position: fixed;
+            top: 50px;
+            left: 20px;
+            background: linear-gradient(to right, pink, silver);
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0px 0px 20px white;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .fixed-side:hover {
+            background: white;
+            color: black;
+        }
+        .erase-button, .solution-button {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .erase-button {
+            background: red;
+            color: white;
+        }
+        .erase-button:hover {
+            background: darkred;
+        }
+        .solution-button {
+            background: blue;
+            color: white;
+        }
+        .solution-button:hover {
+            background: darkblue;
+        }
+    </style>
+</head>
+<body>
+    <button class="fixed-side" onclick="location.href='index.html'">Volver al inicio</button>
+    <h1>Sopa de Letras</h1>
+    <div class="container">
+        <button onclick="iniciarJuego('facil')" style="background: linear-gradient(to right, white, pink); border: none; padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 20px; box-shadow: 0px 0px 15px white; transition: 0.3s; font-weight: bold; margin: 5px;">Nivel Fácil</button>
+        <button onclick="iniciarJuego('dificil')" style="background: linear-gradient(to right, white, pink); border: none; padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 20px; box-shadow: 0px 0px 15px white; transition: 0.3s; font-weight: bold; margin: 5px;">Nivel Difícil</button>
+        
+        <div class="word-list" id="word-list"></div>
+        <div class="grid" id="grid"></div>
+        <button class="erase-button" id="erase-btn" onclick="borrarSeleccion()">Borrar Selección</button>
+        <button class="solution-button" id="solution-btn" onclick="mostrarSolucion()">Ver Respuestas</button>
+    </div>
+    
+    <script>
+        const palabras = ["JULI", "ANITA", "CAMI", "FEDE", "LUCAS", "ANTO", "ANACHIARA", "CONNY", "MANU", "FEFE", "BUDA", "SANTICOMA"];
+        let seleccionadas = "";
+        let encontradas = [];
+        let gridData = [];
+
+        function iniciarJuego(dificultad) {
+            document.getElementById("word-list").innerHTML = palabras.map(p => `<span id="word-${p}">${p}</span>`).join(" - ");
+            encontradas = [];
+            seleccionadas = "";
+            document.getElementById("erase-btn").style.display = "block";
+            document.getElementById("solution-btn").style.display = "block";
+            generarSopa(dificultad);
+        }
+
+        function generarSopa(dificultad) {
+            let size = dificultad === "facil" ? 10 : 15;
+            gridData = Array.from({ length: size }, () => Array(size).fill(""));
+            let letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            
+            palabras.forEach(palabra => {
+                let placed = false;
+                while (!placed) {
+                    let row = Math.floor(Math.random() * size);
+                    let col = Math.floor(Math.random() * size);
+                    let dir = Math.random() > 0.5 ? "horizontal" : "vertical";
+                    if (dir === "horizontal" && col + palabra.length <= size) {
+                        for (let i = 0; i < palabra.length; i++) gridData[row][col + i] = palabra[i];
+                        placed = true;
+                    } else if (dir === "vertical" && row + palabra.length <= size) {
+                        for (let i = 0; i < palabra.length; i++) gridData[row + i][col] = palabra[i];
+                        placed = true;
+                    }
+                }
+            });
+
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    if (!gridData[r][c]) gridData[r][c] = letras[Math.floor(Math.random() * letras.length)];
+                }
+            }
+            
+            mostrarSopa(gridData);
+        }
+
+        function mostrarSopa(grid) {
+            let html = "";
+            grid.forEach((row, r) => {
+                row.forEach((letter, c) => {
+                    html += `<div class='cell' onclick='seleccionarLetra(this, "${letter}")' data-letter='${letter}'>${letter}</div>`;
+                });
+            });
+            document.getElementById("grid").innerHTML = html;
+        }
+
+        function seleccionarLetra(cell, letra) {
+            if (!cell.classList.contains("selected")) {
+                cell.classList.add("selected");
+                seleccionadas += letra;
+                verificarPalabra();
+            }
+        }
+
+        function verificarPalabra() {
+            for (let palabra of palabras) {
+                if (seleccionadas.includes(palabra) && !encontradas.includes(palabra)) {
+                    document.getElementById(`word-${palabra}`).classList.add("found");
+                    encontradas.push(palabra);
+                    document.querySelectorAll(".selected").forEach(cell => cell.classList.add("found"));
+                    seleccionadas = "";
+                    if (encontradas.length === palabras.length) {
+                        setTimeout(() => alert("¡Felicitaciones! Has encontrado todas las palabras."), 500);
+                    }
+                }
+            }
+        }
+
+        function borrarSeleccion() {
+            document.querySelectorAll(".selected").forEach(cell => cell.classList.remove("selected"));
+            seleccionadas = "";
+        }
+
+        function mostrarSolucion() {
+            document.querySelectorAll(".cell").forEach((cell, index) => {
+                let row = Math.floor(index / gridData.length);
+                let col = index % gridData.length;
+                if (palabras.some(palabra => palabra.includes(gridData[row][col]))) {
+                    cell.classList.add("found");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
